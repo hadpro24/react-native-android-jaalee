@@ -1,6 +1,3 @@
-iBeacon-Android-Estimote-SDK-Source-Code-Jaalee-master
-======================================================
-
 # The Source code Of Estimote SDK #
 
 ## Overview ##
@@ -18,5 +15,7 @@ Author：Alvin.Bert
 Email：Alvin.Bert.hu@gmail.com
 
 Our Team：Jaalee
+
 Website：[http://www.jaalee.com/](http://www.jaalee.com/)
+
 Contact Us：Service@jaalee.com
