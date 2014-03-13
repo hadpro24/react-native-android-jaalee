@@ -10,8 +10,8 @@ It allows for:
 Notice：
 The source codes of this project are base on Estimote's  SDK, and the author has rewritten and adjusted the SKD, Which include all the source codes. This project is  for developers to make a reference, but not for commercial purposes. If you have any questions when you use the codes , or you need  the source codes which can be  used for commercial purposes, please contact us directly.
 
-About Us: 
 Author：Alvin.Bert
+
 Email：Alvin.Bert.hu@gmail.com
 
 Our Team：Jaalee
