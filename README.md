@@ -1,4 +1,4 @@
-# The Source code Of Estimote SDK #
+# The Source code Of Estimote android SDK #
 
 ## Overview ##
 
