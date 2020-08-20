@@ -1,19 +1,26 @@
+
 {
-  "name": "react-native-sdk-android-jaalee",
+  "name": "react-native-android-jaalee",
   "version": "1.0.0",
-  "description": "## Overview ##",
-  "nativePackage":true,
+  "description": "",
   "main": "index.js",
+  "nativePackage":true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "beacon-jaalee",
+  ],
+  "author": "Harouna Diallo",
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": "^0.41.2"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hadpro24/react-native-sdk-android-jaalee.git"
   },
-  "keywords": ["beacon jaalee", "react native"],
-  "author": "Harouna Diallo",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/hadpro24/react-native-sdk-android-jaalee.git/issues"
   },

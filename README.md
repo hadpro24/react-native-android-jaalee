@@ -1,23 +1,37 @@
-Jaalee-Beacon-Android-SDK-master
-============================
 
-## Overview ##
+# react-native-android-jaalee
 
-It allows for:
-- beacon ranging (scan beacons and optionally filters them by their values)
-- beacon monitoring (monitors regions for those devices that have entered/exited a region)
-- beacon characteristic reading and writing (proximity UUID, major & minor values, broadcasting power, advertising interval), see BeaconConnection class and demos in the source code
+## Getting started
 
-Dear JAALEE SDK developer.
+`$ npm install react-native-android-jaalee --save`
 
-We are happy to share with you our latest Beacon SDK for Android.
+### Mostly automatic installation
 
-You can email us with any question or problem you are having, and we will try hard to reply asap. Email: dev@jaalee.com
+`$ react-native link react-native-android-jaalee`
 
-If you need beacons in larger quantities, please contact our sales dept: sales@jaalee.com
+### Manual installation
 
-Our Team：[JAALEE](http://www.jaalee.com/)
 
-JAALEE Website：[http://www.jaalee.com/](http://www.jaalee.com/)
+#### Android
 
-Contact Us：service@jaalee.com
+1. Open up `android/app/src/main/java/[...]/MainActivity.java`
+  - Add `import com.jaalee.sdk.RNAndroidJaaleePackage;` to the imports at the top of the file
+  - Add `new RNAndroidJaaleePackage()` to the list returned by the `getPackages()` method
+2. Append the following lines to `android/settings.gradle`:
+  	```
+  	include ':react-native-android-jaalee'
+  	project(':react-native-android-jaalee').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-android-jaalee/android')
+  	```
+3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
+  	```
+      compile project(':react-native-android-jaalee')
+  	```
+
+
+## Usage
+```javascript
+import RNAndroidJaalee from 'react-native-android-jaalee';
+
+// TODO: What to do with the module?
+RNAndroidJaalee;
+```
