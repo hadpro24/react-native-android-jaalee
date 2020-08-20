@@ -39,7 +39,7 @@ public class RNAndroidJaaleeModule extends ReactContextBaseJavaModule implements
   }
 
   @Override
-  public void CallBeaconImata(){
+  public void CallBeaconJalee(){
     this.statusBeacon.CallBeacon();
   }
 

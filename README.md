@@ -26,12 +26,21 @@
   	```
       compile project(':react-native-android-jaalee')
   	```
-
+## Featurs
+  - Connection beacon JAALEE
+  - Call Beacon
 
 ## Usage
 ```javascript
 import RNAndroidJaalee from 'react-native-android-jaalee';
 
-// TODO: What to do with the module?
-RNAndroidJaalee;
+// Connection Beacon
+RNAndroidJaalee.StartBeaconConnectionWithPassword(proximityUUID, name, macAddress,
+    major, minor, measuredPower, rssi, batt, password);
+// Call Beacon - Vibrate
+ RNAndroidJaalee.CallBeaconJalee();
+
 ```
+
+## Author
+Harouna Diallo
