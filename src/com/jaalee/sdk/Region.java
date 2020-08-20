@@ -5,18 +5,15 @@
 
 import com.jaalee.sdk.internal.Objects;
 import com.jaalee.sdk.internal.Preconditions;
-/**
- * http://www.jaalee.com/
- * Jaalee, Inc.
- * This project is for developers, not for commercial purposes.
- * For the source codes which can be  used for commercial purposes, please contact us directly.
- * 
- * @author Alvin.Bert
- * Alvin.Bert.hu@gmail.com
- * 
- * service@jaalee.com
- */
 
+/**
+ * Defines a region based on device's proximity to a beacon. Region is defined by proximity UUID, major and minor numbers of targeting beacons. All of those can be nulls which means wildcard on that field.
+
+Region's identifier is introduced similarly to CLBeaconRegion's identifier to uniquely identify region. You can use this identifier in the app to differentiate regions.
+
+This mimics CLBeaconRegion from iOS.
+ *
+ */
  public class Region
    implements Parcelable
  {
@@ -36,6 +33,13 @@ import com.jaalee.sdk.internal.Preconditions;
 	   }
    };
  
+   /**
+    * 
+    * @param identifier A unique identifier for a region. Cannot be null.
+    * @param proximityUUID Proximity UUID of beacons. Can be null. Null indicates all proximity UUIDs.
+    * @param major Major version of the beacons. Can be null. Null indicates all major versions.
+    * @param minor Minor version of the beacons. Can be null. Null indicates all minor versions.
+    */
    public Region(String identifier, String proximityUUID, Integer major, Integer minor)
    {
 	   this.identifier = ((String)Preconditions.checkNotNull(identifier));
@@ -43,22 +47,38 @@ import com.jaalee.sdk.internal.Preconditions;
 	   this.major = major;
 	   this.minor = minor;
    }
- 
+   
+   /**
+    * 
+    * @return Region's unique identifier. Cannot be null.
+    */ 
    public String getIdentifier()
    {
 	   return this.identifier;
    }
  
+   /**
+    * 
+    * @return Proximity UUID of targeting beacons.
+    */
    public String getProximityUUID()
    {
 	   return this.proximityUUID;
    }
  
+  /**
+   * 
+   * @return Major version of targeting beacons.
+   */
    public Integer getMajor()
    {
 	   return this.major;
    }
  
+   /**
+    * 
+    * @return Minor version of targeting beacons.
+    */
    public Integer getMinor()
    {
 	   return this.minor;

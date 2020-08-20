@@ -1,26 +1,27 @@
  package com.jaalee.sdk.service;
  
  import android.app.AlarmManager;
- import android.app.PendingIntent;
- import android.app.Service;
- import android.bluetooth.BluetoothAdapter;
- import android.bluetooth.BluetoothAdapter.LeScanCallback;
- import android.bluetooth.BluetoothDevice;
- import android.bluetooth.BluetoothManager;
- import android.content.BroadcastReceiver;
- import android.content.Context;
- import android.content.Intent;
- import android.content.IntentFilter;
- import android.os.Handler;
- import android.os.HandlerThread;
- import android.os.IBinder;
- import android.os.Looper;
- import android.os.Message;
- import android.os.Messenger;
- import android.os.RemoteException;
- import android.os.SystemClock;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothAdapter.LeScanCallback;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 
+import com.jaalee.sdk.BLEDevice;
 import com.jaalee.sdk.Beacon;
 import com.jaalee.sdk.Region;
 import com.jaalee.sdk.Utils;
@@ -31,24 +32,14 @@ import com.jaalee.sdk.utils.JaaleeBeacons;
 import com.jaalee.sdk.utils.L;
 
  import java.util.ArrayList;
- import java.util.Iterator;
- import java.util.List;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
- import java.util.Map.Entry;
- import java.util.Set;
- import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-/**
- * http://www.jaalee.com/
- * Jaalee, Inc.
- * This project is for developers, not for commercial purposes.
- * For the source codes which can be  used for commercial purposes, please contact us directly.
- * 
- * @author Alvin.Bert
- * Alvin.Bert.hu@gmail.com
- * 
- * service@jaalee.com
- */
+
  public class BeaconService extends Service
  {
 	 public static final int MSG_START_RANGING = 1;
@@ -68,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 	 private static final Intent SCAN_START_INTENT = new Intent("startScan");
 	 private static final Intent AFTER_SCAN_INTENT = new Intent("afterScan");
 	 private final Messenger messenger;
+	 private Messenger DeviceDiscoverReplyTo;
 	 private final BluetoothAdapter.LeScanCallback leScanCallback;
 	 private final ConcurrentHashMap<Beacon, Long> beaconsFoundInScanCycle;
 	 private final List<RangingRegion> rangedRegions;
@@ -267,7 +259,7 @@ import java.util.concurrent.TimeUnit;
  
 	 private void checkNotOnUiThread()
 	 {
-		 Preconditions.checkArgument(Looper.getMainLooper().getThread() != Thread.currentThread(), "This cannot be run on UI thread, starting BLE scan can be expensive");
+//		 Preconditions.checkArgument(Looper.getMainLooper().getThread() != Thread.currentThread(), "This cannot be run on UI thread, starting BLE scan can be expensive");
  
 		 Preconditions.checkNotNull(Boolean.valueOf(this.handlerThread.getLooper() == Looper.myLooper()), "It must be executed on service's handlerThread");
 	 }
@@ -345,12 +337,15 @@ import java.util.concurrent.TimeUnit;
 		 {
 			 BeaconService.this.checkNotOnUiThread();
 			 Beacon beacon = Utils.beaconFromLeScan(device, rssi, scanRecord);
-			 if (!JaaleeBeacons.isEstimoteBeacon(beacon))
+			 
+			 BeaconService.this.OnDiscoveredBLEDevice(Utils.BLEDeviceFromLeScan(device, rssi, scanRecord));
+			 if (!JaaleeBeacons.isJaaleeBeacon(beacon))
 			 {
+				 //Log.e("JAALEE", "Current Beacon not an Jaalee Beacon");
 				 return;
 			 }
 			 if (beacon == null) {
-				 L.v("Parse error: " + HashCode.fromBytes(scanRecord).toString());
+				 //L.v("Parse error: " + HashCode.fromBytes(scanRecord).toString());
 				 return;
 			 }
 //			 Log.i("HELLOTEST:", "Beacon Beacon:"+beacon.getProximityUUID());
@@ -400,6 +395,9 @@ import java.util.concurrent.TimeUnit;
 						 L.d("Setting background scan period: " + BeaconService.this.backgroundScanPeriod);
 						 BeaconService.this.backgroundScanPeriod = ((ScanPeriodData)obj);
 						 break;
+					 case 100:
+						 DeviceDiscoverReplyTo = replyTo;
+					 	break;
 					 case 3:
 					 case 6:
 					 case 8:
@@ -409,6 +407,19 @@ import java.util.concurrent.TimeUnit;
 				 }
 			 });
 		 }
+	 }
+	 
+	 private void OnDiscoveredBLEDevice(BLEDevice device)
+	 {
+		 try {
+			 
+			 Message rangingResponseMsg = Message.obtain(null, 100);
+			 rangingResponseMsg.obj = device;
+			DeviceDiscoverReplyTo.send(rangingResponseMsg);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			L.e("Error while delivering responses", e);
+		}
 	 }
  
 	 private class AfterScanCycleTask implements Runnable

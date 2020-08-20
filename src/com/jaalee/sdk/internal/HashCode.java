@@ -3,15 +3,12 @@ package com.jaalee.sdk.internal;
 import java.io.Serializable;
 import java.security.MessageDigest;
 /**
- * http://www.jaalee.com/
- * Jaalee, Inc.
- * This project is for developers, not for commercial purposes.
- * For the source codes which can be  used for commercial purposes, please contact us directly.
+ * @author JAALEE, Inc
  * 
- * @author Alvin.Bert
- * Alvin.Bert.hu@gmail.com
+ * @Support dev@jaalee.com
+ * @Sales: sales@jaalee.com
  * 
- * service@jaalee.com
+ * @see http://www.jaalee.com/
  */
 
 public abstract class HashCode
@@ -25,6 +22,13 @@ public abstract class HashCode
 	public abstract long padToLong();
 
 	public abstract byte[] asBytes();
+	
+	public static HashCode fromShort(int hash)
+	{
+		return new ShortHashCode(hash);
+	}
+	
+	
 
 	public static HashCode fromInt(int hash)
 	{
@@ -207,6 +211,43 @@ public abstract class HashCode
 		}
     }
 
+	private static final class ShortHashCode extends HashCode implements Serializable
+	{
+		final int hash;
+		private static final long serialVersionUID = 0L;
+
+		ShortHashCode(int hash)
+		{
+			this.hash = hash;
+		}
+
+		public int bits()
+		{
+			return 16;
+		}
+
+		public byte[] asBytes()
+		{
+			return new byte[] { (byte)(this.hash >> 8), (byte)this.hash};
+		}
+
+		public int asInt()
+		{
+			return this.hash;
+		}
+
+		public long asLong()
+		{
+			throw new IllegalStateException("this HashCode only has 32 bits; cannot create a long");
+		}
+
+		public long padToLong()
+		{
+			return UnsignedInts.toLong(this.hash);
+		}
+	}
+	
+	
 	private static final class IntHashCode extends HashCode implements Serializable
 	{
 		final int hash;

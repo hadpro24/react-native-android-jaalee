@@ -4,20 +4,12 @@
  import android.os.Parcelable;
 
 import com.jaalee.sdk.internal.Objects;
- 
-/**
- * http://www.jaalee.com/
- * Jaalee, Inc.
- * This project is for developers, not for commercial purposes.
- * For the source codes which can be  used for commercial purposes, please contact us directly.
- * 
- * @author Alvin.Bert
- * Alvin.Bert.hu@gmail.com
- * 
- * service@jaalee.com
- */
 
-
+/**  
+*Immutable representations of single beacon.
+*Two beacons are considered equal if their proximity UUID, major and minor are equal.
+*This mimics CLBeacon from iOS.  
+*/
  public class Beacon
    implements Parcelable
  {
@@ -28,6 +20,8 @@ import com.jaalee.sdk.internal.Objects;
    private final int minor;
    private final int measuredPower;
    private final int rssi;
+   private final int battLevel;
+   
    public static final Parcelable.Creator<Beacon> CREATOR = new Parcelable.Creator<Beacon>()
    {
      public Beacon createFromParcel(Parcel source) {
@@ -40,7 +34,7 @@ import com.jaalee.sdk.internal.Objects;
      }
     };
  
-   public Beacon(String proximityUUID, String name, String macAddress, int major, int minor, int measuredPower, int rssi)
+   public Beacon(String proximityUUID, String name, String macAddress, int major, int minor, int measuredPower, int rssi, int batt)
    {
       this.proximityUUID = Utils.normalizeProximityUUID(proximityUUID);
       this.name = name;
@@ -49,6 +43,7 @@ import com.jaalee.sdk.internal.Objects;
       this.minor = minor;
       this.measuredPower = measuredPower;
       this.rssi = rssi;
+      this.battLevel = batt;
    }
  
    public String getProximityUUID()
@@ -85,10 +80,18 @@ import com.jaalee.sdk.internal.Objects;
    {
 	   return this.rssi;
    }
+   
+   public int getBattLevel()
+   {
+	   return this.battLevel;
+   }
  
    public String toString()
    {
-	   return Objects.toStringHelper(this).add("macAddress", this.macAddress).add("proximityUUID", this.proximityUUID).add("major", this.major).add("minor", this.minor).add("measuredPower", this.measuredPower).add("rssi", this.rssi).toString();
+	   return Objects.toStringHelper(this).add("macAddress", this.macAddress).add("proximityUUID", this.proximityUUID).add("major", this.major).add("minor", this.minor).add("measuredPower", this.measuredPower)
+			   .add("rssi", this.rssi)
+			   .add("battLevel", this.battLevel)
+			   .toString();
    }
  
    public boolean equals(Object o)
@@ -120,6 +123,7 @@ import com.jaalee.sdk.internal.Objects;
 	   this.minor = parcel.readInt();
 	   this.measuredPower = parcel.readInt();
 	   this.rssi = parcel.readInt();
+	   this.battLevel = parcel.readInt();
    }
  
    public int describeContents()
@@ -136,5 +140,6 @@ import com.jaalee.sdk.internal.Objects;
 	   dest.writeInt(this.minor);
 	   dest.writeInt(this.measuredPower);
 	   dest.writeInt(this.rssi);
+	   dest.writeInt(this.battLevel);
    }
  }

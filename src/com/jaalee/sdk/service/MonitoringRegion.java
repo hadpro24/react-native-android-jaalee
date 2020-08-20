@@ -4,16 +4,14 @@ import android.os.Messenger;
 
 import com.jaalee.sdk.Region;
 /**
- * http://www.jaalee.com/
- * Jaalee, Inc.
- * This project is for developers, not for commercial purposes.
- * For the source codes which can be  used for commercial purposes, please contact us directly.
+ * @author JAALEE, Inc
  * 
- * @author Alvin.Bert
- * Alvin.Bert.hu@gmail.com
+ * @Support dev@jaalee.com
+ * @Sales: sales@jaalee.com
  * 
- * service@jaalee.com
+ * @see http://www.jaalee.com/
  */
+
 final class MonitoringRegion
 {
 	private static final int NOT_SEEN = -1;

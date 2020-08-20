@@ -9,29 +9,27 @@
  import android.content.IntentFilter;
  import android.util.Log;
 
+import com.jaalee.sdk.connection.JaaleeDefine;
 import com.jaalee.sdk.internal.HashCode;
 import com.jaalee.sdk.internal.Preconditions;
 /**
- * http://www.jaalee.com/
- * Jaalee, Inc.
- * This project is for developers, not for commercial purposes.
- * For the source codes which can be  used for commercial purposes, please contact us directly.
+ * @author JAALEE, Inc
  * 
- * @author Alvin.Bert
- * Alvin.Bert.hu@gmail.com
+ * @Support dev@jaalee.com
+ * @Sales: sales@jaalee.com
  * 
- * service@jaalee.com
+ * @see http://www.jaalee.com/
  */
 
  public class Utils
  {
 	 private static final String TAG = Utils.class.getSimpleName();
 //	 private static final int MANUFACTURER_SPECIFIC_DATA = 255;
- 
+	 
 	 public static Beacon beaconFromLeScan(BluetoothDevice device, int rssi, byte[] scanRecord)
-	 {
-		 String scanRecordAsHex = HashCode.fromBytes(scanRecord).toString();
- 
+	 {		 
+		 String scanRecordAsHex = HashCode.fromBytes(scanRecord).toString();		 	
+		 
 		 for (int i = 0; i < scanRecord.length; i++) 
 		 {
 			 int payloadLength = unsignedByteToInt(scanRecord[i]);
@@ -47,19 +45,24 @@ import com.jaalee.sdk.internal.Preconditions;
 			 }
 			 else 
 			 {
-				 if (payloadLength == 26) 
+				 if (payloadLength == 26 || payloadLength == 27 ) 
 				 {
-					 if ((unsignedByteToInt(scanRecord[(i + 2)]) == 76) && (unsignedByteToInt(scanRecord[(i + 3)]) == 0) && (unsignedByteToInt(scanRecord[(i + 4)]) == 2) && (unsignedByteToInt(scanRecord[(i + 5)]) == 21))						 
+					 if ((unsignedByteToInt(scanRecord[(i + 2)]) == 76) && (unsignedByteToInt(scanRecord[(i + 3)]) == 0) && (unsignedByteToInt(scanRecord[(i + 4)]) == 2) && (unsignedByteToInt(scanRecord[(i + 5)]) == 21))
 					 {
+
 						 String proximityUUID = String.format("%s-%s-%s-%s-%s", new Object[] { scanRecordAsHex.substring(18, 26), scanRecordAsHex.substring(26, 30), scanRecordAsHex.substring(30, 34), scanRecordAsHex.substring(34, 38), scanRecordAsHex.substring(38, 50) });
  
 						 int major = unsignedByteToInt(scanRecord[(i + 22)]) * 256 + unsignedByteToInt(scanRecord[(i + 23)]);
 						 int minor = unsignedByteToInt(scanRecord[(i + 24)]) * 256 + unsignedByteToInt(scanRecord[(i + 25)]);
 						 int measuredPower = scanRecord[(i + 26)];
 						 
-//						 Log.i(TAG, "New Beacon:"+proximityUUID);
- 
-						 return new Beacon(proximityUUID, device.getName(), device.getAddress(), major, minor, measuredPower, rssi);
+						 if (payloadLength == 27)
+						 {
+							 int BattLevel = scanRecord[(i + 27)];
+							 return new Beacon(proximityUUID, device.getName(), device.getAddress(), major, minor, measuredPower, rssi, BattLevel);
+						 }
+//						 Log.i(TAG, "New Beacon:"+proximityUUID);	 
+						 return new Beacon(proximityUUID, device.getName(), device.getAddress(), major, minor, measuredPower, rssi, -1);
 					 }
 					 Log.v(TAG, "Manufacturer specific data does not start with 0x4C000215, " + scanRecordAsHex);
 					 return null;
@@ -71,6 +74,11 @@ import com.jaalee.sdk.internal.Preconditions;
 		 }
  
 		 return null;
+	 }	 
+ 
+	 public static BLEDevice BLEDeviceFromLeScan(BluetoothDevice device, int rssi, byte[] scanRecord)
+	 {		 
+		 return new BLEDevice(device.getName(), device.getAddress(), rssi, 1);
 	 }
  
    public static String normalizeProximityUUID(String proximityUUID)
@@ -88,38 +96,52 @@ import com.jaalee.sdk.internal.Preconditions;
  
    public static double computeAccuracy(Beacon beacon)
    {
-	   if (beacon.getRssi() == 0) 
-	   {
-		   return -1.0D;
-	   }
- 
-	   double ratio = beacon.getRssi() / beacon.getMeasuredPower();
-	   double rssiCorrection = 0.96D + Math.pow(Math.abs(beacon.getRssi()), 3.0D) % 10.0D / 150.0D;
- 
-	   if (ratio <= 1.0D) 
-	   {
-		   return Math.pow(ratio, 9.98D) * rssiCorrection;
-	   }
-	   return (0.103D + 0.89978D * Math.pow(ratio, 7.71D)) * rssiCorrection;
+	   int RSSI = Math.abs(beacon.getRssi());
+	   
+//	   if (beacon.getRssi() == 0) 
+//	   {
+//		   return -1.0D;
+//	   }
+// 
+//	   double ratio = beacon.getRssi() / beacon.getMeasuredPower();
+//	   double rssiCorrection = 0.96D + Math.pow(Math.abs(beacon.getRssi()), 3.0D) % 10.0D / 150.0D;
+// 
+//	   if (ratio <= 1.0D) 
+//	   {
+//		   return Math.pow(ratio, 9.98D) * rssiCorrection;
+//	   }
+//	   return (0.103D + 0.89978D * Math.pow(ratio, 7.71D)) * rssiCorrection;
+	   
+     if (RSSI == 0.0D) {
+         return -1.0D;
+       }
+   
+       double ratio = RSSI * 1.0D / beacon.getMeasuredPower();
+       if (ratio < 1.0D) {
+         return Math.pow(ratio, 8.0D);
+       }
+   
+       double accuracy = 0.69976D * Math.pow(ratio, 7.7095D) + 0.111D;
+       return accuracy;
    }
  
-   	public static Proximity proximityFromAccuracy(double accuracy)
+   	public static int proximityFromAccuracy(double accuracy)
    	{
    		if (accuracy < 0.0D) 
    		{
-   			return Proximity.UNKNOWN;
+   			return JaaleeDefine.JAALEE_BEACON_PROXIMITY_STATE_UNKNOWN;
    		}
    		if (accuracy < 0.5D) 
    		{
-   			return Proximity.IMMEDIATE;
+   			return JaaleeDefine.JAALEE_BEACON_PROXIMITY_STATE_IMMEDIATE;
    		}
    		if (accuracy <= 3.0D) {
-   			return Proximity.NEAR;
+   			return JaaleeDefine.JAALEE_BEACON_PROXIMITY_STATE_NEAR;
    		}
-   		return Proximity.FAR;
+   		return JaaleeDefine.JAALEE_BEACON_PROXIMITY_STATE_FAR;
    }
  
-   public static Proximity computeProximity(Beacon beacon) {
+   public static int computeProximity(Beacon beacon) {
 	   return proximityFromAccuracy(computeAccuracy(beacon));
    }
  
@@ -172,18 +194,5 @@ import com.jaalee.sdk.internal.Preconditions;
    private static int unsignedByteToInt(byte value)
    {
 	   return value & 0xFF;
-   }
- 
-   public static enum Proximity
-   {
-	   UNKNOWN, 
-	   IMMEDIATE, 
-	   NEAR, 
-	   FAR;
-   }
- 
-   public static abstract interface RestartCompletedListener
-   {
-     public abstract void onRestartCompleted();
    }
  }

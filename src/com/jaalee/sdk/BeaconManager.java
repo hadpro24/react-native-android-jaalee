@@ -1,18 +1,18 @@
-package com.jaalee.sdk;
+ package com.jaalee.sdk;
  
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
+ import android.bluetooth.BluetoothAdapter;
+ import android.bluetooth.BluetoothManager;
+ import android.content.ComponentName;
+ import android.content.Context;
+ import android.content.Intent;
+ import android.content.ServiceConnection;
+ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
+ import android.os.Handler;
+ import android.os.IBinder;
+ import android.os.Message;
+ import android.os.Messenger;
+ import android.os.RemoteException;
 import com.jaalee.sdk.internal.Preconditions;
 import com.jaalee.sdk.service.BeaconService;
 import com.jaalee.sdk.service.MonitoringResult;
@@ -20,23 +20,19 @@ import com.jaalee.sdk.service.RangingResult;
 import com.jaalee.sdk.service.ScanPeriodData;
 import com.jaalee.sdk.utils.L;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+ import java.util.HashSet;
+ import java.util.List;
+ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * http://www.jaalee.com/
- * Jaalee, Inc.
- * This project is for developers, not for commercial purposes.
- * For the source codes which can be  used for commercial purposes, please contact us directly.
+ * @author JAALEE, Inc
  * 
- * @author Alvin.Bert
- * Alvin.Bert.hu@gmail.com
+ * @Support dev@jaalee.com
+ * @Sales: sales@jaalee.com
  * 
- * service@jaalee.com
+ * @see http://www.jaalee.com/
  */
-
 
  public class BeaconManager
  {
@@ -49,6 +45,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
    private Messenger serviceMessenger;
    private RangingListener rangingListener;
    private MonitoringListener monitoringListener;
+   private DeviceDiscoverListener DiscoverBLEListener;
    private ErrorListener errorListener;
    private ServiceReadyCallback callback;
    private ScanPeriodData foregroundScanPeriod;
@@ -63,11 +60,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
       this.monitoredRegionIds = new HashSet<String>();
    }
  
+   /**
+    * @return Returns true if device supports Bluetooth Low Energy.
+    */
    public boolean hasBluetooth()
    {
      return this.context.getPackageManager().hasSystemFeature("android.hardware.bluetooth_le");
    }
- 
+   
+   
+ /**
+  * 
+  * @return Returns true if device supports Bluetooth Low Energy.
+  */
    public boolean isBluetoothEnabled()
    {
 	   if (!checkPermissionsAndService()) {
@@ -79,6 +84,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 	   return (adapter != null) && (adapter.isEnabled());
    }
  
+   /**
+    * 
+    * @return Checks if required Bluetooth permissions are set (android.permission.BLUETOOTH and android.permission.BLUETOOTH_ADMIN) along with BeaconService in AndroidManifest.xml.
+    */
    public boolean checkPermissionsAndService()
    {
 	   PackageManager pm = this.context.getPackageManager();
@@ -91,6 +100,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 	     return (bluetoothPermission == 0) && (bluetoothAdminPermission == 0) && (resolveInfo.size() > 0);
    }
  
+   /**
+    * Connects to BeaconService.
+    * @param callback Callback to be invoked when connection is made to service.
+    */
    public void connect(ServiceReadyCallback callback)
    {
 	   if (!checkPermissionsAndService()) 
@@ -107,6 +120,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 		   L.wtf("Could not bind service");
    }
  
+   /**
+    * Disconnects from BeaconService. If there were any ranging or monitoring in progress, they will be stopped. This should be typically called in onDestroy method.
+    */
    public void disconnect()
    {
 	   if (!isConnectedToService()) 
@@ -117,7 +133,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 	   
 	   //hrb спринй
 	   CopyOnWriteArrayList<String> tempRangedRegionIds = new CopyOnWriteArrayList<String>(this.rangedRegionIds);
-	   for (String regionId : tempRangedRegionIds) 
+	   for (String regionId : tempRangedRegionIds)
 	   {
 		   try 
 		   {
@@ -144,17 +160,39 @@ import java.util.concurrent.CopyOnWriteArrayList;
 	   this.context.unbindService(this.serviceConnection);
 	   this.serviceMessenger = null;
    }
- 
+
+   /**
+    * Sets new ranging listener. Old one will be discarded.
+    * @param listener The listener
+    */
    public void setRangingListener(RangingListener listener)
    {
 	   this.rangingListener = ((RangingListener)Preconditions.checkNotNull(listener, "listener cannot be null"));
    }
  
+   /**
+    * Sets new monitoring listener. Old one will be discarded.
+    * @param listener the new listener
+    */
    public void setMonitoringListener(MonitoringListener listener)
    {
 	   this.monitoringListener = ((MonitoringListener)Preconditions.checkNotNull(listener, "listener cannot be null"));
    }
+   
+   
+   /**
+    * Sets new ble device discover listener
+    * @param listener the new listener
+    */
+   public void setDeviceDiscoverListener(DeviceDiscoverListener listener)
+   {
+	   this.DiscoverBLEListener = ((DeviceDiscoverListener)Preconditions.checkNotNull(listener, "listener cannot be null")); 
+   }
  
+   /**
+    * Sets new error listener. Old one will be discarded.
+    * @param listener The new listener
+    */
    public void setErrorListener(ErrorListener listener)
    {
 	   this.errorListener = listener;
@@ -162,14 +200,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 		   registerErrorListenerInService();
    }
  
+   /**
+    * Changes defaults scanning periods when ranging is performed. Default values: scanPeriod=1s, waitTime=0s
+    * @param scanPeriodMillis  How long to perform Bluetooth Low Energy scanning?
+    * @param waitTimeMillis  How long to wait until performing next scanning?
+    */
    public void setForegroundScanPeriod(long scanPeriodMillis, long waitTimeMillis)
    {
 	   if (isConnectedToService())
-		   setScanPeriod(new ScanPeriodData(scanPeriodMillis, waitTimeMillis), 10);
+			setScanPeriod(new ScanPeriodData(scanPeriodMillis, waitTimeMillis), 10);
      else
     	 this.foregroundScanPeriod = new ScanPeriodData(scanPeriodMillis, waitTimeMillis);
    }
- 
+   
+   
+ /**
+  * Changes defaults scanning periods when monitoring is performed. Default values: scanPeriod=5s, waitTime=25s
+  * @param scanPeriodMillis How long to perform Bluetooth Low Energy scanning?
+  * @param waitTimeMillis How long to wait until performing next scanning?
+  */
    public void setBackgroundScanPeriod(long scanPeriodMillis, long waitTimeMillis)
    {
 	   if (isConnectedToService())
@@ -178,6 +227,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
     	 this.backgroundScanPeriod = new ScanPeriodData(scanPeriodMillis, waitTimeMillis);
    }
  
+   
    private void setScanPeriod(ScanPeriodData scanPeriodData, int msgId)
    {
 	   Message scanPeriodMsg = Message.obtain(null, msgId);
@@ -198,12 +248,42 @@ import java.util.concurrent.CopyOnWriteArrayList;
 		   L.e("Error while registering error listener");
 	   }
    }
+   
+//   /**
+//    * Starts ranging given range. Ranging results will be delivered to listener registered via setRangingListener(RangingListener). If given region is already ranged, this is no-op.
+//    * @param region Region to range.
+//    * @throws RemoteException  If communication with service failed.
+//    */
+//   public void startDiscoverBLEDevice()
+//     throws RemoteException
+//   {
+//	   	if (!isConnectedToService()) {
+//	   		L.i("Not starting discover, not connected to service");
+//	   		return;
+//	   	}	   	
+// 
+//	   	Message startRangingMsg = Message.obtain(null, 100);	   	
+//	   	startRangingMsg.replyTo = this.incomingMessenger;
+//	   	try {
+//	   		this.serviceMessenger.send(startRangingMsg);
+//	   	} catch (RemoteException e) {
+//	   		L.e("Error while starting discover", e);
+//	   		throw e;
+//	   	}
+//   }   
  
-   public void startRanging(Region region)
+   
+   /**
+    * Starts ranging given range. Ranging results will be delivered to listener registered via setRangingListener(RangingListener). If given region is already ranged, this is no-op.
+    * It will also disvocer all the ble device around the phone. 
+    * @param region Region to range.
+    * @throws RemoteException  If communication with service failed.
+    */
+   public void startRangingAndDiscoverDevice(Region region)
      throws RemoteException
    {
 	   	if (!isConnectedToService()) {
-	   		L.i("Not starting ranging, not connected to service");
+	   		L.i("Not starting ranging and discover ble device, not connected to service");
 	   		return;
 	   	}
 	   	Preconditions.checkNotNull(region, "region cannot be null");
@@ -222,6 +302,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 	   		L.e("Error while starting ranging", e);
 	   		throw e;
 	   	}
+	   	
+	   	startRangingMsg = Message.obtain(null, 100);	   	
+	   	startRangingMsg.replyTo = this.incomingMessenger;
+	   	try {
+	   		this.serviceMessenger.send(startRangingMsg);
+	   	} catch (RemoteException e) {
+	   		L.e("Error while starting discover", e);
+	   		throw e;
+	   	}
+	   	
    }
  
    public void stopRanging(Region region) throws RemoteException {
@@ -237,35 +327,39 @@ import java.util.concurrent.CopyOnWriteArrayList;
 	   this.rangedRegionIds.remove(regionId);
 	   Message stopRangingMsg = Message.obtain(null, 2);
 	   stopRangingMsg.obj = regionId;
-     try {
-    	 this.serviceMessenger.send(stopRangingMsg);
-     } catch (RemoteException e) {
-    	 L.e("Error while stopping ranging", e);
-    	 throw e;
-     }
-   }
+	   try {
+		   this.serviceMessenger.send(stopRangingMsg);
+		   } catch (RemoteException e) {
+			   L.e("Error while stopping ranging", e);
+			   throw e;
+			   }
+	   }
  
    public void startMonitoring(Region region) throws RemoteException {
 	   if (!isConnectedToService()) {
 		   L.i("Not starting monitoring, not connected to service");
 		   return;
 	   }
+	   
 	   Preconditions.checkNotNull(region, "region cannot be null");
- 
+	   
 	   if (this.monitoredRegionIds.contains(region.getIdentifier())) {
 		   L.i("Region already monitored but that's OK: " + region);
 	   }
+	   
 	   this.monitoredRegionIds.add(region.getIdentifier());
  
-	   Message startMonitoringMsg = Message.obtain(null, 4);
+	   Message startMonitoringMsg = Message.obtain(null, 4);	   
 	   startMonitoringMsg.obj = region;
 	   startMonitoringMsg.replyTo = this.incomingMessenger;
+	   
 	   try {
 		   this.serviceMessenger.send(startMonitoringMsg);
-	   } catch (RemoteException e) {
+	   } catch (RemoteException e) 
+	   {
 		   L.e("Error while starting monitoring", e);
 		   throw e;
-     }
+	   }
    }
  
    public void stopMonitoring(Region region) throws RemoteException {
@@ -322,8 +416,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
     			 BeaconManager.this.errorListener.onError(errorId);
     		 }
     		 break;
+    	 case 100:
+    		 if (BeaconManager.this.DiscoverBLEListener != null) {
+    			 BLEDevice DiscoveringResult = (BLEDevice)msg.obj;
+    	         BeaconManager.this.DiscoverBLEListener.onBLEDeviceDiscovered(DiscoveringResult);
+    		 } 		 
+    		 break;
     	 default:
     		 L.d("Unknown message: " + msg);
+    		 break;
     	 }
      }
    }
@@ -362,26 +463,5 @@ import java.util.concurrent.CopyOnWriteArrayList;
      }
    }
  
-   public static abstract interface ErrorListener
-   {
-	   public abstract void onError(Integer paramInteger);
-   }
- 
-   public static abstract interface MonitoringListener
-   {
-     public abstract void onEnteredRegion(Region paramRegion);
- 
-     public abstract void onExitedRegion(Region paramRegion);
-   }
- 
-   public static abstract interface RangingListener
-   {
-     public abstract void onBeaconsDiscovered(Region paramRegion, List<Beacon> paramList);
-   }
- 
-   public static abstract interface ServiceReadyCallback
-   {
-     public abstract void onServiceReady();
-   }
  }
 

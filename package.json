@@ -2,6 +2,7 @@
   "name": "react-native-sdk-android-jaalee",
   "version": "1.0.0",
   "description": "## Overview ##",
+  "nativePackage":true,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
