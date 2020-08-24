@@ -176,7 +176,7 @@ import com.jaalee.sdk.internal.Preconditions;
 				   int state = intent.getIntExtra("android.bluetooth.adapter.extra.STATE", -1);
 				   if (state == 10) 
 				   {
-					   adapter.enable();//hrb  спринй
+					   adapter.enable();//hrb
 				   } 
 				   else if (state == 12) 
 				   {
