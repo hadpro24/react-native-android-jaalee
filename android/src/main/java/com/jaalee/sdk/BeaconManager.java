@@ -131,7 +131,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 		   return;
 	   }
 	   
-	   //hrb спринй
+	   //hrb
 	   CopyOnWriteArrayList<String> tempRangedRegionIds = new CopyOnWriteArrayList<String>(this.rangedRegionIds);
 	   for (String regionId : tempRangedRegionIds)
 	   {

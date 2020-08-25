@@ -45,8 +45,8 @@ public class BeaconConnection
 	private final BluetoothGattCallback bluetoothGattCallback;
 //	private final Runnable timeoutHandler;
 	
-	private boolean mStartWritePass = false;//是否是Jaalee新版的固件
-	public boolean mCurrentIsJaaleeNewBeacon = false;//是否是Jaalee新版的固件
+	private boolean mStartWritePass = false;//
+	public boolean mCurrentIsJaaleeNewBeacon = false;//
 	private String mPassword;
 	private boolean mPassWordWriteSuccess = false;;
 	
@@ -217,12 +217,12 @@ public class BeaconConnection
 		byte[] arrayOfByte;
 		if (this.mStartWritePass)
 		{
-//			Log.i("NRF  TEST121", "NRF  NRF写入");
+//			Log.i("NRF  TEST121", "NRF");
 			arrayOfByte = HashCode.fromString(mPassword.replaceAll("-", "").toLowerCase()).asBytes();
 		}
 		else
 		{
-//			Log.i("NRF  TEST121", "NRF  TI写入");
+//			Log.i("NRF  TEST121", "NRF ");
 			arrayOfByte = new byte[1];
 			arrayOfByte[0] = 1;
 		}
@@ -474,7 +474,7 @@ public class BeaconConnection
 		}
 	}
 	
-	//设置状态
+	//
 	/**
 	 * Set Beacon State
 	 * @param state The state of beacon
@@ -513,7 +513,7 @@ public class BeaconConnection
 		this.bluetoothGatt.writeCharacteristic(Char);
 	}
 	
-	//设置状态
+	//
 	/**
 	 * Set Audio state
 	 * @param state The audio state of beacon
@@ -651,7 +651,7 @@ public class BeaconConnection
 		}
 	}
 
-	//修改名字
+	//
 	/**
 	 * Config Beacon's device name
 	 * @param name the name of the beacon,like "jaalee"
@@ -746,7 +746,7 @@ public class BeaconConnection
 					
 					if (JaaleeUuid.BEACON_KEEP_CONNECT_CHAR.equals(characteristic.getUuid()))
 					{
-						//获取到了值
+						//
 						//keep connect
 						if (characteristic.getValue().length == 3)
 						{
@@ -836,7 +836,7 @@ public class BeaconConnection
 						 }
 						 else if (JaaleeUuid.JAALEE_BEACON_SERVICE.equals(service.getUuid()))
 						 {
-							 //读取特征值
+							 //
 								BeaconConnection.this.handler.postDelayed(new Runnable() 
 								{
 									@Override

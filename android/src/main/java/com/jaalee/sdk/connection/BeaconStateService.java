@@ -23,7 +23,7 @@ public class BeaconStateService
 	private final HashMap<UUID, BluetoothGattCharacteristic> characteristics = new HashMap();
 	private final HashMap<UUID, WriteCallback> writeCallbacks = new HashMap();
 	
-	static boolean mCurrentIsJaaleeNewBeacon = false;//是否是Jaalee新版的固件
+	static boolean mCurrentIsJaaleeNewBeacon = false;//
 	
 	public void processGattServices(List<BluetoothGattService> services)
 	{
