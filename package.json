@@ -1,7 +1,7 @@
 
 {
   "name": "react-native-android-jaalee",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "React Native Beacon Manager android JAALEE",
   "main": "index.js",
   "nativePackage":true,
