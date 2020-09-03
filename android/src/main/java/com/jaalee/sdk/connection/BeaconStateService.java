@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.UUID;
 /**
  * @author JAALEE, Inc
- * 
+ *
  * @Support dev@jaalee.com
  * @Sales: sales@jaalee.com
- * 
+ *
  * @see http://www.jaalee.com/
  */
 
@@ -22,17 +22,17 @@ public class BeaconStateService
 {
 	private final HashMap<UUID, BluetoothGattCharacteristic> characteristics = new HashMap();
 	private final HashMap<UUID, WriteCallback> writeCallbacks = new HashMap();
-	
+
 	static boolean mCurrentIsJaaleeNewBeacon = false;//
-	
+
 	public void processGattServices(List<BluetoothGattService> services)
 	{
 		for (BluetoothGattService service : services)
 			if (JaaleeUuid.BEACON_STATE_SERVICE.equals(service.getUuid())) {
 				if (service.getCharacteristic(JaaleeUuid.BEACON_STATE_CHAR) != null)
 				{
-					this.characteristics.put(JaaleeUuid.BEACON_STATE_CHAR, service.getCharacteristic(JaaleeUuid.BEACON_STATE_CHAR));	
-				}	
+					this.characteristics.put(JaaleeUuid.BEACON_STATE_CHAR, service.getCharacteristic(JaaleeUuid.BEACON_STATE_CHAR));
+				}
 			}
 	}
 
@@ -40,12 +40,12 @@ public class BeaconStateService
 	{
 		return this.characteristics.containsKey(uuid);
 	}
-	
+
 	public void update(BluetoothGattCharacteristic characteristic)
 	{
 		this.characteristics.put(characteristic.getUuid(), characteristic);
 	}
-	
+
 	public BluetoothGattCharacteristic beforeCharacteristicWrite(UUID uuid, WriteCallback callback) {
 		if (callback != null)
 		{
@@ -53,7 +53,7 @@ public class BeaconStateService
 		}
 		return (BluetoothGattCharacteristic)this.characteristics.get(uuid);
 	}
- 
+
 	public void onCharacteristicWrite(BluetoothGattCharacteristic characteristic, int status) {
 		WriteCallback writeCallback = (WriteCallback)this.writeCallbacks.remove(characteristic.getUuid());
 		if (status == 0)
@@ -69,14 +69,14 @@ public class BeaconStateService
 	}
 
 	public Integer getBeaconState() {
-		
+
 		if (mCurrentIsJaaleeNewBeacon)
 		{
-				return this.characteristics.containsKey(JaaleeUuid.BEACON_STATE_CHAR) ? Integer.valueOf(getUnsignedByte(((BluetoothGattCharacteristic)this.characteristics.get(JaaleeUuid.BEACON_STATE_CHAR)).getValue())) : null;	
+				return this.characteristics.containsKey(JaaleeUuid.BEACON_STATE_CHAR) ? Integer.valueOf(getUnsignedByte(((BluetoothGattCharacteristic)this.characteristics.get(JaaleeUuid.BEACON_STATE_CHAR)).getValue())) : null;
 		}
-		return 1;		
+		return 1;
 	}
-	
+
 	private static int getUnsignedByte(byte[] bytes) {
 		return unsignedByteToInt(bytes[0]);
 	}

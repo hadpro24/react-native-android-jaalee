@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.UUID;
 /**
  * @author JAALEE, Inc
- * 
+ *
  * @Support dev@jaalee.com
  * @Sales: sales@jaalee.com
- * 
+ *
  * @see http://www.jaalee.com/
  */
 
@@ -22,16 +22,16 @@ public class BeaconTxPower
 {
 	private final HashMap<UUID, BluetoothGattCharacteristic> characteristics = new HashMap();
 	private final HashMap<UUID, WriteCallback> writeCallbacks = new HashMap();
-	
+
 	static boolean mCurrentIsJaaleeNewBeacon = false;//
-	
+
 	public void processGattServices(List<BluetoothGattService> services)
 	{
 		for (BluetoothGattService service : services)
 			if (JaaleeUuid.BEACON_TX_POWER_SERVICE.equals(service.getUuid())) {
 				if (service.getCharacteristic(JaaleeUuid.BEACON_TX_POWER_CHAR) != null)
 				{
-					this.characteristics.put(JaaleeUuid.BEACON_TX_POWER_CHAR, service.getCharacteristic(JaaleeUuid.BEACON_TX_POWER_CHAR));	
+					this.characteristics.put(JaaleeUuid.BEACON_TX_POWER_CHAR, service.getCharacteristic(JaaleeUuid.BEACON_TX_POWER_CHAR));
 				}
 			}
 	}
@@ -40,14 +40,14 @@ public class BeaconTxPower
 	{
 		return this.characteristics.containsKey(uuid);
 	}
-	
+
 	public void update(BluetoothGattCharacteristic characteristic)
 	{
 		this.characteristics.put(characteristic.getUuid(), characteristic);
 		if (!mCurrentIsJaaleeNewBeacon)
 		{
 			byte [] Value = characteristic.getValue();
-			
+
 			WriteCallback writeCallback = (WriteCallback)this.writeCallbacks.remove(characteristic.getUuid());
 			if (writeCallback != null)
 			{
@@ -62,7 +62,7 @@ public class BeaconTxPower
 			}
 		}
 	}
-	
+
 	public BluetoothGattCharacteristic beforeCharacteristicWrite(UUID uuid, WriteCallback callback) {
 		if (callback != null)
 		{
@@ -70,7 +70,7 @@ public class BeaconTxPower
 		}
 		return (BluetoothGattCharacteristic)this.characteristics.get(uuid);
 	}
- 
+
 	public void onCharacteristicWrite(BluetoothGattCharacteristic characteristic, int status) {
 		if (mCurrentIsJaaleeNewBeacon)
 		{
@@ -78,7 +78,7 @@ public class BeaconTxPower
 			if (status == 0)
 				writeCallback.onSuccess();
 			else
-				writeCallback.onError();			
+				writeCallback.onError();
 		}
 	}
 
@@ -124,7 +124,7 @@ public class BeaconTxPower
 					break;
 				default:
 					txPower = 4;
-					break;				
+					break;
 			}
 		}
 		else
@@ -133,7 +133,7 @@ public class BeaconTxPower
 			{
 				case 0:
 					txPower = 0;
-					break;			
+					break;
 				case 1:
 					txPower = -6;
 					break;
@@ -142,12 +142,12 @@ public class BeaconTxPower
 					break;
 				default:
 					txPower = 0;
-					break;				
-			}			
+					break;
+			}
 		}
 		return txPower;
 	}
-	
+
 	private static int getUnsignedByte(byte[] bytes) {
 		return unsignedByteToInt(bytes[0]);
 	}

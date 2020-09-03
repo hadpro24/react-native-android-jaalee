@@ -35,7 +35,8 @@
 import RNAndroidJaalee from 'react-native-android-jaalee';
 
 // Connection Beacon
-RNAndroidJaalee.StartBeaconConnectionWithPassword(proximityUUID,major, minor, password);
+RNAndroidJaalee.StartBeaconConnectionWithPassword(proximityUUID, name, macAddress,
+    major, minor, measuredPower, rssi, batt, password);
 // Call Beacon - Vibrate
  RNAndroidJaalee.CallBeaconJalee();
 

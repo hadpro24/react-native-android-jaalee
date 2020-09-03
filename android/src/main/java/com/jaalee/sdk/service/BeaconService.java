@@ -1,5 +1,5 @@
  package com.jaalee.sdk.service;
- 
+
  import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -78,38 +78,38 @@ import java.util.concurrent.TimeUnit;
 	 private PendingIntent afterScanBroadcastPendingIntent;
 	 private ScanPeriodData foregroundScanPeriod;
 	 private ScanPeriodData backgroundScanPeriod;
- 
+
 	 public BeaconService()
 	 {
 		 this.messenger = new Messenger(new IncomingHandler());
- 
+
 		 this.leScanCallback = new InternalLeScanCallback();
- 
+
 		 this.beaconsFoundInScanCycle = new ConcurrentHashMap();
- 
+
 		 this.rangedRegions = new ArrayList();
- 
+
 		 this.monitoredRegions = new ArrayList();
- 
+
 		 this.foregroundScanPeriod = new ScanPeriodData(TimeUnit.SECONDS.toMillis(1L), TimeUnit.SECONDS.toMillis(0L));
- 
+
 		 this.backgroundScanPeriod = new ScanPeriodData(TimeUnit.SECONDS.toMillis(5L), TimeUnit.SECONDS.toMillis(30L));
 	 }
- 
+
 	 public void onCreate()
 	 {
 		 super.onCreate();
 		 L.i("Creating service");
- 
+
 		 this.alarmManager = ((AlarmManager)getSystemService("alarm"));
 		 BluetoothManager bluetoothManager = (BluetoothManager)getSystemService("bluetooth");
 		 this.adapter = bluetoothManager.getAdapter();
 		 this.afterScanCycleTask = new AfterScanCycleTask();
- 
+
 		 this.handlerThread = new HandlerThread("BeaconServiceThread", 10);
 		 this.handlerThread.start();
 		 this.handler = new Handler(this.handlerThread.getLooper());
- 
+
 		 this.bluetoothBroadcastReceiver = createBluetoothBroadcastReceiver();
 		 this.scanStartBroadcastReceiver = createScanStartBroadcastReceiver();
 		 this.afterScanBroadcastReceiver = createAfterScanBroadcastReceiver();
@@ -119,29 +119,29 @@ import java.util.concurrent.TimeUnit;
 		 this.afterScanBroadcastPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, AFTER_SCAN_INTENT, 0);
 		 this.scanStartBroadcastPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, SCAN_START_INTENT, 0);
 	 }
- 
+
 	 public void onDestroy()
 	 {
 		 L.i("Service destroyed");
 		 unregisterReceiver(this.bluetoothBroadcastReceiver);
 		 unregisterReceiver(this.scanStartBroadcastReceiver);
 		 unregisterReceiver(this.afterScanBroadcastReceiver);
- 
+
 		 if (this.adapter != null) {
 	       stopScanning();
 		 }
- 
+
 	     removeAfterScanCycleCallback();
 	     this.handlerThread.quit();
- 
+
 	     super.onDestroy();
 	 }
- 
+
 	 public IBinder onBind(Intent intent)
 	 {
 		 return this.messenger.getBinder();
 	 }
- 
+
 	 private void startRanging(RangingRegion rangingRegion) {
 		 checkNotOnUiThread();
 		 L.v("Start ranging: " + rangingRegion.region);
@@ -149,7 +149,7 @@ import java.util.concurrent.TimeUnit;
 		 this.rangedRegions.add(rangingRegion);
 		 startScanning();
 	 }
- 
+
 	 private void stopRanging(String regionId) {
 		 L.v("Stopping ranging: " + regionId);
 		 checkNotOnUiThread();
@@ -166,7 +166,7 @@ import java.util.concurrent.TimeUnit;
 	    	 this.beaconsFoundInScanCycle.clear();
 	     }
 	 }
- 
+
 	 public void startMonitoring(MonitoringRegion monitoringRegion) {
 	     checkNotOnUiThread();
 	     L.v("Starting monitoring: " + monitoringRegion.region);
@@ -174,7 +174,7 @@ import java.util.concurrent.TimeUnit;
 	     this.monitoredRegions.add(monitoringRegion);
 	     startScanning();
 	 }
- 
+
 	 public void stopMonitoring(String regionId) {
 		 L.v("Stopping monitoring: " + regionId);
 		 checkNotOnUiThread();
@@ -191,7 +191,7 @@ import java.util.concurrent.TimeUnit;
 	    	 this.beaconsFoundInScanCycle.clear();
 	     }
 	 }
- 
+
 	 private void startScanning() {
 		 if (this.scanning) {
 			 L.d("Scanning already in progress, not starting one more");
@@ -214,7 +214,7 @@ import java.util.concurrent.TimeUnit;
 	     removeAfterScanCycleCallback();
 	     setAlarm(this.afterScanBroadcastPendingIntent, scanPeriodTimeMillis());
 	 }
- 
+
 	 private void stopScanning()
 	 {
 		 try {
@@ -224,7 +224,7 @@ import java.util.concurrent.TimeUnit;
 			 L.wtf("BluetoothAdapter throws unexpected exception", e);
 		 }
 	 }
- 
+
 	 private void sendError(Integer errorId) {
 		 if (this.errorReplyTo != null) {
 			 Message errorMsg = Message.obtain(null, 8);
@@ -236,14 +236,14 @@ import java.util.concurrent.TimeUnit;
 			 }
 		 }
 	 }
- 
+
 	 private long scanPeriodTimeMillis() {
 		 if (!this.rangedRegions.isEmpty()) {
 			 return this.foregroundScanPeriod.scanPeriodMillis;
 		 }
 	     return this.backgroundScanPeriod.scanPeriodMillis;
 	 }
- 
+
 	 private long scanWaitTimeMillis()
 	 {
 		 if (!this.rangedRegions.isEmpty()) {
@@ -251,19 +251,19 @@ import java.util.concurrent.TimeUnit;
 		 }
 	     return this.backgroundScanPeriod.waitTimeMillis;
 	 }
- 
+
 	 private void setAlarm(PendingIntent pendingIntent, long delayMillis)
 	 {
 		 this.alarmManager.set(2, SystemClock.elapsedRealtime() + delayMillis, pendingIntent);
 	 }
- 
+
 	 private void checkNotOnUiThread()
 	 {
 //		 Preconditions.checkArgument(Looper.getMainLooper().getThread() != Thread.currentThread(), "This cannot be run on UI thread, starting BLE scan can be expensive");
- 
+
 		 Preconditions.checkNotNull(Boolean.valueOf(this.handlerThread.getLooper() == Looper.myLooper()), "It must be executed on service's handlerThread");
 	 }
- 
+
 	 private BroadcastReceiver createBluetoothBroadcastReceiver()
 	 {
 		 return new BroadcastReceiver()
@@ -287,7 +287,7 @@ import java.util.concurrent.TimeUnit;
 							 public void run() {
 								 if ((!BeaconService.this.monitoredRegions.isEmpty()) || (!BeaconService.this.rangedRegions.isEmpty())) {
 									 L.i(String.format("Bluetooth is ON: resuming scanning (monitoring: %d ranging:%d)", new Object[] { Integer.valueOf(BeaconService.this.monitoredRegions.size()), Integer.valueOf(BeaconService.this.rangedRegions.size()) }));
-									 
+
 									 BeaconService.this.startScanning();
 								 }
 							 }
@@ -296,14 +296,14 @@ import java.util.concurrent.TimeUnit;
 			 }
 		 };
 	 }
- 
+
 	 private void removeAfterScanCycleCallback()
 	 {
 		 this.handler.removeCallbacks(this.afterScanCycleTask);
 		 this.alarmManager.cancel(this.afterScanBroadcastPendingIntent);
 	     this.alarmManager.cancel(this.scanStartBroadcastPendingIntent);
 	 }
- 
+
 	 private BroadcastReceiver createAfterScanBroadcastReceiver() {
 		 return new BroadcastReceiver()
 		 {
@@ -312,7 +312,7 @@ import java.util.concurrent.TimeUnit;
 			 }
 		 };
 	 }
- 
+
 	 private BroadcastReceiver createScanStartBroadcastReceiver() {
 		 return new BroadcastReceiver()
 		 {
@@ -326,18 +326,18 @@ import java.util.concurrent.TimeUnit;
 			 }
 		 };
 	 }
- 
+
 	 private class InternalLeScanCallback implements BluetoothAdapter.LeScanCallback
 	 {
 		 private InternalLeScanCallback()
 		 {
 		 }
- 
+
 		 public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord)
 		 {
 			 BeaconService.this.checkNotOnUiThread();
 			 Beacon beacon = Utils.beaconFromLeScan(device, rssi, scanRecord);
-			 
+
 			 BeaconService.this.OnDiscoveredBLEDevice(Utils.BLEDeviceFromLeScan(device, rssi, scanRecord));
 			 if (!JaaleeBeacons.isJaaleeBeacon(beacon))
 			 {
@@ -352,13 +352,13 @@ import java.util.concurrent.TimeUnit;
 			 BeaconService.this.beaconsFoundInScanCycle.put(beacon, Long.valueOf(System.currentTimeMillis()));
 		 }
 	 }
- 
+
 	 private class IncomingHandler extends Handler
 	 {
 		 private IncomingHandler()
 		 {
 		 }
- 
+
 		 public void handleMessage(Message msg)
 		 {
 			 final int what = msg.what;
@@ -408,11 +408,11 @@ import java.util.concurrent.TimeUnit;
 			 });
 		 }
 	 }
-	 
+
 	 private void OnDiscoveredBLEDevice(BLEDevice device)
 	 {
 		 try {
-			 
+
 			 Message rangingResponseMsg = Message.obtain(null, 100);
 			 rangingResponseMsg.obj = device;
 			DeviceDiscoverReplyTo.send(rangingResponseMsg);
@@ -421,28 +421,28 @@ import java.util.concurrent.TimeUnit;
 			L.e("Error while delivering responses", e);
 		}
 	 }
- 
+
 	 private class AfterScanCycleTask implements Runnable
 	 {
 		 private AfterScanCycleTask()
 		 {
 		 }
- 
+
 		 private void processRanging()
 		 {
 			 Map.Entry entry;
-			 for (Iterator<Entry<Beacon, Long>> i$ = BeaconService.this.beaconsFoundInScanCycle.entrySet().iterator(); i$.hasNext(); ) 
-			 { 
+			 for (Iterator<Entry<Beacon, Long>> i$ = BeaconService.this.beaconsFoundInScanCycle.entrySet().iterator(); i$.hasNext(); )
+			 {
 				 entry = (Map.Entry)i$.next();
 				 for (RangingRegion rangingRegion : matchingRangingRegions((Beacon)entry.getKey()))
 				 {
 					 rangingRegion.beacons.remove(entry.getKey());
 					 rangingRegion.beacons.put((Beacon)entry.getKey(), (Long)entry.getValue());
-				 } 
+				 }
 			 }
-       
+
 		 }
- 
+
 		 private List<RangingRegion> matchingRangingRegions(Beacon beacon) {
 			 List results = new ArrayList();
 			 for (RangingRegion rangedRegion : BeaconService.this.rangedRegions) {
@@ -452,7 +452,7 @@ import java.util.concurrent.TimeUnit;
 			 }
 			 return results;
 		 }
- 
+
 		 private List<MonitoringRegion> processMonitoring() {
 			 List didEnterRegions = new ArrayList();
 			 long now = System.currentTimeMillis();
@@ -465,7 +465,7 @@ import java.util.concurrent.TimeUnit;
 			 }
 			 return didEnterRegions;
 		 }
- 
+
 		 private List<MonitoringRegion> matchingMonitoredRegions(Beacon beacon) {
 	       List results = new ArrayList();
 	       for (MonitoringRegion monitoredRegion : BeaconService.this.monitoredRegions) {
@@ -475,7 +475,7 @@ import java.util.concurrent.TimeUnit;
 	       }
 	       return results;
 		 }
- 
+
 		 private void removeNotSeenRangedBeacons() {
 			 long now = System.currentTimeMillis();
 			 for (RangingRegion rangedRegion : BeaconService.this.rangedRegions) {
@@ -489,7 +489,7 @@ import java.util.concurrent.TimeUnit;
 				 }
 			 }
 		 }
- 
+
 		 private List<MonitoringRegion> findExitedRegions() {
 			 List didExitMonitors = new ArrayList();
 			 long now = System.currentTimeMillis();
@@ -500,7 +500,7 @@ import java.util.concurrent.TimeUnit;
 			 }
 			 return didExitMonitors;
 		 }
- 
+
 		 private void invokeCallbacks(List<MonitoringRegion> enteredMonitors, List<MonitoringRegion> exitedMonitors) {
 			 for (RangingRegion rangingRegion : BeaconService.this.rangedRegions) {
 				 try {
@@ -530,7 +530,7 @@ import java.util.concurrent.TimeUnit;
 				 }
 			 }
 		 }
- 
+
 		 public void run()
 		 {
 			 BeaconService.this.checkNotOnUiThread();
@@ -547,9 +547,9 @@ import java.util.concurrent.TimeUnit;
 			 }
 			 else
 			 {
-				 BeaconService.this.setAlarm(BeaconService.this.scanStartBroadcastPendingIntent, BeaconService.this.scanWaitTimeMillis());//hrb спринй
+				 BeaconService.this.setAlarm(BeaconService.this.scanStartBroadcastPendingIntent, BeaconService.this.scanWaitTimeMillis());//hrb
 			 }
-    		 
+
 		 }
 	 }
  }

@@ -1,18 +1,47 @@
-
 {
-  "name": "react-native-android-jaalee",
-  "version": "1.0.3",
-  "description": "React Native Beacon Manager android JAALEE",
-  "main": "index.js",
-  "nativePackage":true,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "_args": [
+    [
+      "react-native-android-jaalee@1.0.2",
+      "/home/harouna/codes/challenges/gn/imata-mobile"
+    ]
+  ],
+  "_from": "react-native-android-jaalee@1.0.2",
+  "_id": "react-native-android-jaalee@1.0.2",
+  "_inBundle": false,
+  "_integrity": "sha512-yldoFK+PB2MEHtMz9qF3cMH1bGFhrkRvpEDyl52d5zlsdo2YFmfzInvWONLQgfg22F+yqzzmUcQvd0DxyJprnQ==",
+  "_location": "/react-native-android-jaalee",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "react-native-android-jaalee@1.0.2",
+    "name": "react-native-android-jaalee",
+    "escapedName": "react-native-android-jaalee",
+    "rawSpec": "1.0.2",
+    "saveSpec": null,
+    "fetchSpec": "1.0.2"
   },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react-native-android-jaalee/-/react-native-android-jaalee-1.0.2.tgz",
+  "_spec": "1.0.2",
+  "_where": "/home/harouna/codes/challenges/gn/imata-mobile",
+  "author": {
+    "name": "Harouna Diallo"
+  },
+  "bugs": {
+    "url": "https://github.com/hadpro24/react-native-sdk-android-jaalee.git/issues"
+  },
+  "description": "React Native Beacon Manager android JAALEE",
+  "homepage": "https://github.com/hadpro24/react-native-sdk-android-jaalee.git#readme",
   "keywords": [
     "react-native"
   ],
-  "author": "Harouna Diallo",
   "license": "MIT",
+  "main": "index.js",
+  "name": "react-native-android-jaalee",
+  "nativePackage": true,
   "peerDependencies": {
     "react-native": "^0.41.2"
   },
@@ -20,8 +49,8 @@
     "type": "git",
     "url": "git+https://github.com/hadpro24/react-native-sdk-android-jaalee.git"
   },
-  "bugs": {
-    "url": "https://github.com/hadpro24/react-native-sdk-android-jaalee.git/issues"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "homepage": "https://github.com/hadpro24/react-native-sdk-android-jaalee.git#readme"
+  "version": "1.0.2"
 }

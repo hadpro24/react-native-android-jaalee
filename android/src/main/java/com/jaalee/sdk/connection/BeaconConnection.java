@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BeaconConnection
 {
-	
+
 	public static Set<Integer> ALLOWED_POWER_LEVELS = Collections.unmodifiableSet(new HashSet(Arrays.asList(new Integer[] { Integer.valueOf(-30), Integer.valueOf(-20), Integer.valueOf(-16), Integer.valueOf(-12), Integer.valueOf(-8), Integer.valueOf(-4), Integer.valueOf(0), Integer.valueOf(4) })));
 	private final Context context;
 	private final BluetoothDevice device;
@@ -44,20 +44,20 @@ public class BeaconConnection
 	private final Handler handler;
 	private final BluetoothGattCallback bluetoothGattCallback;
 //	private final Runnable timeoutHandler;
-	
+
 	private boolean mStartWritePass = false;//
 	public boolean mCurrentIsJaaleeNewBeacon = false;//
 	private String mPassword;
 	private boolean mPassWordWriteSuccess = false;;
-	
+
 	private final BeaconStateService mBeaconStateService;
 	private final BeaconAudioService mBeaconAudioStateService;
 	private final BeaconTxPower mBeaconTxPowerService;
 	private final BeaconNameService mNameService;
-	private final BatteryLifeService mBatteryService;	
+	private final BatteryLifeService mBatteryService;
 	private final JaaleeService mBeaconService;
 	private final AlertService mAlertService;
-	
+
 	private final Map<UUID, BluetoothService> uuidToService;
 	private boolean didReadCharacteristics;
 	private LinkedList<BluetoothGattCharacteristic> toFetch;
@@ -81,18 +81,18 @@ public class BeaconConnection
 		this.mAlertService = new AlertService();
 		this.mBeaconStateService = new BeaconStateService();
 		this.mBeaconAudioStateService = new BeaconAudioService();
-		this.mBeaconTxPowerService = new BeaconTxPower();		
-		
+		this.mBeaconTxPowerService = new BeaconTxPower();
+
 		this.uuidToService = new HashMap<UUID, BluetoothService>();
 		this.uuidToService.put(JaaleeUuid.BEACON_BATTERY_LIFE, mBatteryService);
 		this.uuidToService.put(JaaleeUuid.JAALEE_BEACON_SERVICE, mBeaconService);
 		this.uuidToService.put(JaaleeUuid.BEACON_ALERT, mAlertService);
-		this.uuidToService.put(JaaleeUuid.BEACON_NAME, mNameService);		
+		this.uuidToService.put(JaaleeUuid.BEACON_NAME, mNameService);
 		this.uuidToService.put(JaaleeUuid.BEACON_STATE_SERVICE, mBeaconStateService);
 		this.uuidToService.put(JaaleeUuid.BEACON_AUDIO_STATE_SERVICE, mBeaconAudioStateService);
 		this.uuidToService.put(JaaleeUuid.BEACON_TX_POWER_SERVICE, mBeaconTxPowerService);
 	}
-	
+
 	public BeaconConnection(Context context, BLEDevice beacon, ConnectionCallback connectionCallback)
 	{
 		mCurrentIsJaaleeNewBeacon = false;
@@ -109,24 +109,24 @@ public class BeaconConnection
 		this.mAlertService = new AlertService();
 		this.mBeaconStateService = new BeaconStateService();
 		this.mBeaconAudioStateService = new BeaconAudioService();
-		this.mBeaconTxPowerService = new BeaconTxPower();		
-		
+		this.mBeaconTxPowerService = new BeaconTxPower();
+
 		this.uuidToService = new HashMap<UUID, BluetoothService>();
 		this.uuidToService.put(JaaleeUuid.BEACON_BATTERY_LIFE, mBatteryService);
 		this.uuidToService.put(JaaleeUuid.JAALEE_BEACON_SERVICE, mBeaconService);
 		this.uuidToService.put(JaaleeUuid.BEACON_ALERT, mAlertService);
-		this.uuidToService.put(JaaleeUuid.BEACON_NAME, mNameService);		
+		this.uuidToService.put(JaaleeUuid.BEACON_NAME, mNameService);
 		this.uuidToService.put(JaaleeUuid.BEACON_STATE_SERVICE, mBeaconStateService);
 		this.uuidToService.put(JaaleeUuid.BEACON_AUDIO_STATE_SERVICE, mBeaconAudioStateService);
 		this.uuidToService.put(JaaleeUuid.BEACON_TX_POWER_SERVICE, mBeaconTxPowerService);
-	}	
-	
+	}
+
 	private BluetoothDevice deviceFromBeacon(BLEDevice beacon)
 	{
 	     BluetoothManager bluetoothManager = (BluetoothManager)this.context.getSystemService("bluetooth");
 	     BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
 	     return bluetoothAdapter.getRemoteDevice(beacon.getMacAddress());
-	}	
+	}
 
 	private BluetoothDevice deviceFromBeacon(Beacon beacon)
 	{
@@ -135,7 +135,7 @@ public class BeaconConnection
 	     return bluetoothAdapter.getRemoteDevice(beacon.getMacAddress());
 	}
 
-	
+
 	/**
 	 * Starts connection flow to device with password.
 	 * @param password The password
@@ -152,7 +152,7 @@ public class BeaconConnection
 		 BeaconStateService.mCurrentIsJaaleeNewBeacon = false;
 		 JaaleeService.mCurrentIsJaaleeNewBeacon = false;
 		 mPassWordWriteSuccess = false;
-		 
+
 		this.mStartWritePass = false;
 		this.bluetoothGatt = this.device.connectGatt(this.context, false, this.bluetoothGattCallback);
 //		this.handler.postDelayed(this.timeoutHandler, TimeUnit.SECONDS.toMillis(10L));
@@ -171,7 +171,7 @@ public class BeaconConnection
 	}
 
 	/**
-	 * 
+	 *
 	 * @return Return true if the beacon is connected
 	 */
 	public boolean isConnected() {
@@ -180,18 +180,18 @@ public class BeaconConnection
 //		return (connectionState == 2) && (this.didReadCharacteristics);
 		return (connectionState == 2);
 	}
-	
+
 	public Integer GetBattLevel()
 	{
 		return this.mBatteryService.getBatteryPercent();
 	}
-	
+
 	/**
 	 * Call current Beacon
 	 */
 	public void CallBeacon()
 	{
-		if ((!isConnected()) || (!this.mAlertService.hasCharacteristic(JaaleeUuid.BEACON_ALERT_CHAR))) 
+		if ((!isConnected()) || (!this.mAlertService.hasCharacteristic(JaaleeUuid.BEACON_ALERT_CHAR)))
 		{
 			L.w("Not connected to beacon. Discarding changing proximity UUID.");
 //			writeCallback.onError();
@@ -201,23 +201,23 @@ public class BeaconConnection
 	    byte[] arrayOfByte = new byte[1];
 	    arrayOfByte[0] = 1;
 	    AlertChar.setValue(arrayOfByte);
-		this.bluetoothGatt.writeCharacteristic(AlertChar);		
+		this.bluetoothGatt.writeCharacteristic(AlertChar);
 	}
-	
+
 	private void BeaconKeepConnect(WriteCallback writeCallback)
 	{
-		if ((!isConnected()) || (!this.mBeaconService.hasCharacteristic(JaaleeUuid.BEACON_KEEP_CONNECT_CHAR))) 
+		if ((!isConnected()) || (!this.mBeaconService.hasCharacteristic(JaaleeUuid.BEACON_KEEP_CONNECT_CHAR)))
 		{
 			L.w("Not connected to beacon. Discarding changing proximity UUID.");
 			writeCallback.onError();
 			return;
 		}
 		BluetoothGattCharacteristic uuidChar = this.mBeaconService.beforeCharacteristicWrite(JaaleeUuid.BEACON_KEEP_CONNECT_CHAR, writeCallback);
-		
+
 		byte[] arrayOfByte;
 		if (this.mStartWritePass)
 		{
-//			Log.i("NRF  TEST121", "NRF");
+//			Log.i("NRF  TEST121", "NRF ");
 			arrayOfByte = HashCode.fromString(mPassword.replaceAll("-", "").toLowerCase()).asBytes();
 		}
 		else
@@ -226,12 +226,12 @@ public class BeaconConnection
 			arrayOfByte = new byte[1];
 			arrayOfByte[0] = 1;
 		}
-		
+
 		uuidChar.setValue(arrayOfByte);
-		
+
 		this.bluetoothGatt.writeCharacteristic(uuidChar);
 	}
-	
+
 	//Config Password
 	/**
 	 * Configure the password of the beacon
@@ -247,10 +247,10 @@ public class BeaconConnection
 		}
 		byte[] OldPassAsBytes = HashCode.fromString(mPassword.replaceAll("-", "").toLowerCase()).asBytes();
 		byte[] NewPasswordBytes = HashCode.fromString(NewPsaaword.toLowerCase()).asBytes();
-		
+
 		final BluetoothGattCharacteristic PasswordChar;
-		
-		
+
+
 
 		if (mCurrentIsJaaleeNewBeacon)
 		{
@@ -262,25 +262,25 @@ public class BeaconConnection
 			PasswordChar = this.mBeaconService.beforeCharacteristicWrite(JaaleeUuid.BEACON_FFF6, writeCallback);
 			PasswordChar.setValue(this.arraycat(OldPassAsBytes, NewPasswordBytes));
 		}
-		
+
 		this.bluetoothGatt.writeCharacteristic(PasswordChar);
-		
+
 		if (!mCurrentIsJaaleeNewBeacon)
 		{
-			new Handler().postDelayed(new Runnable(){    
-			    public void run() {    
-			    	//execute the task    
+			new Handler().postDelayed(new Runnable(){
+			    public void run() {
+			    	//execute the task
 //			    	BeaconConnection.this.toFetch.add(BeaconConnection.this.mBeaconService.getAvailableCharacteristic(JaaleeUuid.CHANGE_PASSWORD_CHAR));
 			    	BeaconConnection.this.bluetoothGatt.readCharacteristic(PasswordChar);
-			    }    
+			    }
 			 }, 3000);
 		}
 	}
-	
+
 
 	/**
 	 * Config beacon's proximity uuid
-	 * @param proximityUuid The UUID want to change to 
+	 * @param proximityUuid The UUID want to change to
 	 * @param writeCallback Callback to be invoked when write is completed.
 	 */
 	public void writeProximityUuid(String proximityUuid, WriteCallback writeCallback)
@@ -292,7 +292,7 @@ public class BeaconConnection
 		}
 		byte[] uuidAsBytes = HashCode.fromString(proximityUuid.replaceAll("-", "").toLowerCase()).asBytes();
 		byte[] PasswordBytes = HashCode.fromString(mPassword.toLowerCase()).asBytes();
-		
+
 		final BluetoothGattCharacteristic uuidChar = this.mBeaconService.beforeCharacteristicWrite(JaaleeUuid.BEACON_UUID_CHAR, writeCallback);
 
 		if (mCurrentIsJaaleeNewBeacon)
@@ -303,32 +303,32 @@ public class BeaconConnection
 		else {
 			uuidChar.setValue(this.arraycat(PasswordBytes, uuidAsBytes));
 			this.bluetoothGatt.writeCharacteristic(uuidChar);
-			new Handler().postDelayed(new Runnable(){    
-			    public void run() {    
-			    //execute the task    
+			new Handler().postDelayed(new Runnable(){
+			    public void run() {
+			    //execute the task
 //			    	BeaconConnection.this.toFetch.add(BeaconConnection.this.mBeaconService.getAvailableCharacteristic(JaaleeUuid.BEACON_UUID_CHAR));
 			    	BeaconConnection.this.bluetoothGatt.readCharacteristic(uuidChar);
-			    }    
-			 }, 3000);  
+			    }
+			 }, 3000);
 		}
 	}
 
-	
+
 	/**
 	 * Config beacon's Broadcast Interval
-	 * @param BroadcastInterval Advertising interval in milliseconds (100ms-10000ms). 
+	 * @param BroadcastInterval Advertising interval in milliseconds (100ms-10000ms).
 	 * @param writeCallback Callback to be invoked when write is completed.
 	 */
 	public void writeAdvertisingInterval(int BroadcastInterval, WriteCallback writeCallback)
 	{
-		
+
 		UUID temp_UUID;
 		if (mCurrentIsJaaleeNewBeacon)
 		{
 			temp_UUID = UUID.fromString("0000fff6-0000-1000-8000-00805f9b34fb");
 		}
 		else
-		{	
+		{
 			temp_UUID = UUID.fromString("0000fff7-0000-1000-8000-00805f9b34fb");
 		}
 		if ((!isConnected()) || (!this.mBeaconService.hasCharacteristic(temp_UUID))) {
@@ -336,13 +336,13 @@ public class BeaconConnection
 			writeCallback.onError();
 			return;
 		}
-		
+
 		final BluetoothGattCharacteristic intervalChar = this.mBeaconService.beforeCharacteristicWrite(temp_UUID, writeCallback);
 
 	    byte[] arrayOfByte = new byte[1];
 	    arrayOfByte[0] = (byte)(BroadcastInterval/100);
 		byte[] PasswordBytes = HashCode.fromString(mPassword.toLowerCase()).asBytes();
-	    
+
 		if (mCurrentIsJaaleeNewBeacon)
 		{
 		    intervalChar.setValue(arrayOfByte);
@@ -352,16 +352,16 @@ public class BeaconConnection
 		{
 		    intervalChar.setValue(this.arraycat(PasswordBytes, arrayOfByte));
 			this.bluetoothGatt.writeCharacteristic(intervalChar);
-			new Handler().postDelayed(new Runnable(){    
-			    public void run() {    
+			new Handler().postDelayed(new Runnable(){
+			    public void run() {
 			    	BeaconConnection.this.bluetoothGatt.readCharacteristic(intervalChar);
-			    }    
-			 }, 3000);  				
+			    }
+			 }, 3000);
 		}
 	}
 
 	/**
-	 * Changes Beacon Power value. 
+	 * Changes Beacon Power value.
 	 * @param powerDBM Beacon's measured power to be set.
 	 * @param writeCallback Callback to be invoked when write is completed.
 	 */
@@ -372,29 +372,29 @@ public class BeaconConnection
 			writeCallback.onError();
 			return;
 		}
-		
+
 		byte[] PasswordBytes = HashCode.fromString(mPassword.toLowerCase()).asBytes();
-	    
+
 		byte[] arrayOfByte = new byte[1];
 	    arrayOfByte[0] = (byte)(power);
-	    
+
 	    final BluetoothGattCharacteristic powerChar = this.mBeaconService.beforeCharacteristicWrite(JaaleeUuid.POWER_CHAR, writeCallback);
 
 	    if (mCurrentIsJaaleeNewBeacon)
 	    {
 			powerChar.setValue(arrayOfByte);
-			this.bluetoothGatt.writeCharacteristic(powerChar);	    	
+			this.bluetoothGatt.writeCharacteristic(powerChar);
 	    }
 	    else
 	    {
 			powerChar.setValue(this.arraycat(PasswordBytes, arrayOfByte));
-			
+
 			this.bluetoothGatt.writeCharacteristic(powerChar);
-			new Handler().postDelayed(new Runnable(){    
-			    public void run() {    
+			new Handler().postDelayed(new Runnable(){
+			    public void run() {
 			    	BeaconConnection.this.bluetoothGatt.readCharacteristic(powerChar);
-			    }    
-			 }, 3000);  	
+			    }
+			 }, 3000);
 	    }
 	}
 
@@ -410,28 +410,28 @@ public class BeaconConnection
 			writeCallback.onError();
 			return;
 		}
-		
+
 		major = Utils.normalize16BitUnsignedInt(major);
 
 		final BluetoothGattCharacteristic majorChar = this.mBeaconService.beforeCharacteristicWrite(JaaleeUuid.MAJOR_CHAR, writeCallback);
-		
+
 		byte[] MajorAsBytes = HashCode.fromShort(major).asBytes();
 		byte[] PasswordBytes = HashCode.fromString(mPassword.toLowerCase()).asBytes();
-		
+
 		if (mCurrentIsJaaleeNewBeacon)
 		{
 			majorChar.setValue(MajorAsBytes);
-			this.bluetoothGatt.writeCharacteristic(majorChar);	
+			this.bluetoothGatt.writeCharacteristic(majorChar);
 		}
 		else
 		{
 			majorChar.setValue(this.arraycat(PasswordBytes, MajorAsBytes));
 			this.bluetoothGatt.writeCharacteristic(majorChar);
-			new Handler().postDelayed(new Runnable(){    
-			    public void run() {    
+			new Handler().postDelayed(new Runnable(){
+			    public void run() {
 			    	BeaconConnection.this.bluetoothGatt.readCharacteristic(majorChar);
-			    }    
-			 }, 3000);   			
+			    }
+			 }, 3000);
 		}
 
 	}
@@ -448,14 +448,14 @@ public class BeaconConnection
 			writeCallback.onError();
 			return;
 		}
-		
+
 		minor = Utils.normalize16BitUnsignedInt(minor);
 		byte[] MinorAsBytes = HashCode.fromShort(minor).asBytes();
 		final BluetoothGattCharacteristic minorChar = this.mBeaconService.beforeCharacteristicWrite(JaaleeUuid.MINOR_CHAR, writeCallback);
 
-		
+
 		byte[] PasswordBytes = HashCode.fromString(mPassword.toLowerCase()).asBytes();
-		
+
 		if (mCurrentIsJaaleeNewBeacon)
 		{
 			minorChar.setValue(MinorAsBytes);
@@ -465,15 +465,15 @@ public class BeaconConnection
 		{
 			minorChar.setValue(this.arraycat(PasswordBytes, MinorAsBytes));
 			this.bluetoothGatt.writeCharacteristic(minorChar);
-			new Handler().postDelayed(new Runnable(){    
-			    public void run() {    
+			new Handler().postDelayed(new Runnable(){
+			    public void run() {
 			    	BeaconConnection.this.bluetoothGatt.readCharacteristic(minorChar);
-			    }    
-			 }, 3000);   
-			
+			    }
+			 }, 3000);
+
 		}
 	}
-	
+
 	//
 	/**
 	 * Set Beacon State
@@ -486,7 +486,7 @@ public class BeaconConnection
 		{
 			L.w("Current beacon not support config state.");
 			writeCallback.onError();
-			return;			
+			return;
 		}
 		if (!isConnected()) {
 			L.w("Not connected to beacon. Discarding changing state.");
@@ -512,7 +512,7 @@ public class BeaconConnection
 		Char.setValue(arrayOfByte);
 		this.bluetoothGatt.writeCharacteristic(Char);
 	}
-	
+
 	//
 	/**
 	 * Set Audio state
@@ -525,7 +525,7 @@ public class BeaconConnection
 		{
 			L.w("Current beacon not support config state.");
 			writeCallback.onError();
-			return;			
+			return;
 		}
 		if (!isConnected()) {
 			L.w("Not connected to beacon. Discarding changing state.");
@@ -557,11 +557,11 @@ public class BeaconConnection
 		Char.setValue(arrayOfByte);
 		this.bluetoothGatt.writeCharacteristic(Char);
 	}
-	
-	
+
+
 	/**
-	 * Changes broadcasting power of the beacon. 
-	 * Allowed values: see JaaleeDefine	
+	 * Changes broadcasting power of the beacon.
+	 * Allowed values: see JaaleeDefine
 	 * @param state The Tx Power of the beacon
 	 * @param writeCallback Callback to be invoked when write is completed.
 	 */
@@ -574,7 +574,7 @@ public class BeaconConnection
 		}
 
 		byte[] arrayOfByte = new byte[1];
-		
+
 		if (mCurrentIsJaaleeNewBeacon)
 		{
 			switch (state)
@@ -605,11 +605,11 @@ public class BeaconConnection
 					break;
 				case JaaleeDefine.JAALEE_TX_POWER_MINUS_40_DBM:
 					arrayOfByte[0] = 9;
-					break;					
+					break;
 				default:
 					arrayOfByte[0] = 1;
 					break;
-			}			
+			}
 		}
 		else
 		{
@@ -627,11 +627,11 @@ public class BeaconConnection
 				default:
 					arrayOfByte[0] = 0;
 					break;
-			}					
+			}
 		}
 
 		final BluetoothGattCharacteristic Char = this.mBeaconTxPowerService.beforeCharacteristicWrite(JaaleeUuid.BEACON_TX_POWER_CHAR, writeCallback);
-		
+
 		if (mCurrentIsJaaleeNewBeacon)
 		{
 			Char.setValue(arrayOfByte);
@@ -642,12 +642,12 @@ public class BeaconConnection
 			byte[] PasswordBytes = HashCode.fromString(mPassword.toLowerCase()).asBytes();
 			Char.setValue(this.arraycat(PasswordBytes, arrayOfByte));
 			this.bluetoothGatt.writeCharacteristic(Char);
-			new Handler().postDelayed(new Runnable(){    
-			    public void run() {    
+			new Handler().postDelayed(new Runnable(){
+			    public void run() {
 			    	BeaconConnection.this.bluetoothGatt.readCharacteristic(Char);
-			    }    
-			 }, 3000);   
-			
+			    }
+			 }, 3000);
+
 		}
 	}
 
@@ -664,29 +664,29 @@ public class BeaconConnection
 			writeCallback.onError();
 			return;
 		}
-		
+
 		if (name.length() > 15)
 		{
 			L.w("the lenth of the name should be less than 15.");
 			writeCallback.onError();
-			return;			
+			return;
 		}
 
 		final BluetoothGattCharacteristic Char;
-		
+
 		if (mCurrentIsJaaleeNewBeacon)
 		{
-			Char = this.mNameService.beforeCharacteristicWrite(JaaleeUuid.BEACON_NEW_NAME_CHAR, writeCallback);			
+			Char = this.mNameService.beforeCharacteristicWrite(JaaleeUuid.BEACON_NEW_NAME_CHAR, writeCallback);
 		}
 		else
 		{
-			Char = this.mNameService.beforeCharacteristicWrite(JaaleeUuid.BEACON_NAME_CHAR, writeCallback);	
+			Char = this.mNameService.beforeCharacteristicWrite(JaaleeUuid.BEACON_NAME_CHAR, writeCallback);
 		}
-		
-		
+
+
 
 		byte[] value = name.getBytes();
-		
+
 		if (mCurrentIsJaaleeNewBeacon)
 		{
 			Char.setValue(value);
@@ -697,17 +697,17 @@ public class BeaconConnection
 			byte[] PasswordBytes = HashCode.fromString(mPassword.toLowerCase()).asBytes();
 			Char.setValue(this.arraycat(PasswordBytes, value));
 			this.bluetoothGatt.writeCharacteristic(Char);
-			new Handler().postDelayed(new Runnable(){    
-			    public void run() {    
+			new Handler().postDelayed(new Runnable(){
+			    public void run() {
 			    	BeaconConnection.this.bluetoothGatt.readCharacteristic(Char);
-			    }    
-			 }, 3000);   
-			
-		}
-	}	
-	
+			    }
+			 }, 3000);
 
-	private Runnable createTimeoutHandler() 
+		}
+	}
+
+
+	private Runnable createTimeoutHandler()
 	{
 		return new Runnable()
 		{
@@ -743,7 +743,7 @@ public class BeaconConnection
 			public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status)
 			{
 				if (status == 0) {
-					
+
 					if (JaaleeUuid.BEACON_KEEP_CONNECT_CHAR.equals(characteristic.getUuid()))
 					{
 						//
@@ -756,32 +756,32 @@ public class BeaconConnection
 						{
 							BeaconConnection.this.mStartWritePass = false;;
 						}
-						
+
 						if (!mPassWordWriteSuccess)
 						{
-							BeaconConnection.this.handler.postDelayed(new Runnable() 
+							BeaconConnection.this.handler.postDelayed(new Runnable()
 							{
 								@Override
 								public void run() {
 									// TODO Auto-generated method stub
 									BeaconConnection.this.BeaconKeepConnect(new WriteCallback() {
-									
+
 										@Override
 										public void onSuccess() {
 											// TODO Auto-generated method stub
 											//Log.i("BeaconConnection", "Keep Connect Successful");
 											mPassWordWriteSuccess = true;
 										}
-									
+
 										@Override
 										public void onError() {
 											// TODO Auto-generated method stub
 											//Log.i("BeaconConnection", "Keep Connect Failed");
 										}
-									});	
-									
+									});
+
 								}
-							}, TimeUnit.SECONDS.toMillis(1L));							
+							}, TimeUnit.SECONDS.toMillis(1L));
 						}
 					}
 					BluetoothService temp = ((BluetoothService)BeaconConnection.this.uuidToService.get(characteristic.getService().getUuid()));
@@ -793,7 +793,7 @@ public class BeaconConnection
 					{
 						BeaconConnection.this.readCharacteristics(gatt);
 					}
-					
+
 				} else {
 					L.w("Failed to read characteristic");
 					BeaconConnection.this.toFetch.clear();
@@ -808,7 +808,7 @@ public class BeaconConnection
 				{
 					temp.onCharacteristicWrite(characteristic, status);
 				}
-				
+
 				if (JaaleeUuid.BEACON_KEEP_CONNECT_CHAR.equals(characteristic.getUuid())){
 					BeaconConnection.this.onAuthenticationCompleted(gatt);
 				}
@@ -822,7 +822,7 @@ public class BeaconConnection
 					BeaconConnection.this.processDiscoveredServices(gatt.getServices());
 //					BeaconConnection.this.startAuthentication(gatt);
 
-					
+
 					 for (BluetoothGattService service : gatt.getServices())
 					 {
 						 if (JaaleeUuid.BEACON_STATE_SERVICE.equals(service.getUuid())) {
@@ -832,12 +832,11 @@ public class BeaconConnection
 							 BeaconAudioService.mCurrentIsJaaleeNewBeacon = true;
 							 BeaconStateService.mCurrentIsJaaleeNewBeacon = true;
 							 JaaleeService.mCurrentIsJaaleeNewBeacon = true;
-							 
+
 						 }
 						 else if (JaaleeUuid.JAALEE_BEACON_SERVICE.equals(service.getUuid()))
 						 {
-							 //
-								BeaconConnection.this.handler.postDelayed(new Runnable() 
+								BeaconConnection.this.handler.postDelayed(new Runnable()
 								{
 									@Override
 									public void run() {
@@ -846,7 +845,7 @@ public class BeaconConnection
 										BeaconConnection.this.bluetoothGatt.readCharacteristic(keepChar);
 //										Log.i("NRF  TEST121", "NRF  TEST122");
 									}
-								}, TimeUnit.SECONDS.toMillis(1L));							 
+								}, TimeUnit.SECONDS.toMillis(1L));
 						 }
 					 }
 
@@ -939,7 +938,7 @@ public class BeaconConnection
 			BluetoothGattCharacteristic temp = (BluetoothGattCharacteristic)this.toFetch.poll();
 //			Log.i("NRF  TEST121", "NRF:" + temp.getUuid());
 			gatt.readCharacteristic(temp);
-			
+
 		}
 		else if (this.bluetoothGatt != null)
 		{
@@ -954,7 +953,7 @@ public class BeaconConnection
 		this.didReadCharacteristics = true;
 		this.connectionCallback.onAuthenticated(new BeaconCharacteristics(this.mBeaconService, this.mNameService, this.mBeaconTxPowerService, this.mBeaconStateService, this.mBeaconAudioStateService));
 	}
-	
+
 	byte[] arraycat(byte[] buf1,byte[] buf2)
 	{
 		byte[] bufret=null;
@@ -971,6 +970,6 @@ public class BeaconConnection
 		if(len2>0)
 			System.arraycopy(buf2,0,bufret,len1,len2);
 		return bufret;
-	}	
-	
+	}
+
 }
