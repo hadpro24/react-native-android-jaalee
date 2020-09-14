@@ -154,7 +154,7 @@ public class BeaconConnection
 		 mPassWordWriteSuccess = false;
 
 		this.mStartWritePass = false;
-		this.bluetoothGatt = this.device.connectGatt(this.context, false, this.bluetoothGattCallback);
+		this.bluetoothGatt = this.device.connectGatt(this.context, true, this.bluetoothGattCallback);
 //		this.handler.postDelayed(this.timeoutHandler, TimeUnit.SECONDS.toMillis(10L));
 	}
 
@@ -217,12 +217,12 @@ public class BeaconConnection
 		byte[] arrayOfByte;
 		if (this.mStartWritePass)
 		{
-//			Log.i("NRF  TEST121", "NRF ");
+//			Log.i("NRF  TEST121", "NRF  NRFд��");
 			arrayOfByte = HashCode.fromString(mPassword.replaceAll("-", "").toLowerCase()).asBytes();
 		}
 		else
 		{
-//			Log.i("NRF  TEST121", "NRF ");
+//			Log.i("NRF  TEST121", "NRF  TIд��");
 			arrayOfByte = new byte[1];
 			arrayOfByte[0] = 1;
 		}
@@ -474,7 +474,7 @@ public class BeaconConnection
 		}
 	}
 
-	//
+	//����״̬
 	/**
 	 * Set Beacon State
 	 * @param state The state of beacon
@@ -513,7 +513,7 @@ public class BeaconConnection
 		this.bluetoothGatt.writeCharacteristic(Char);
 	}
 
-	//
+	//����״̬
 	/**
 	 * Set Audio state
 	 * @param state The audio state of beacon
@@ -651,7 +651,7 @@ public class BeaconConnection
 		}
 	}
 
-	//
+	//�޸�����
 	/**
 	 * Config Beacon's device name
 	 * @param name the name of the beacon,like "jaalee"

@@ -15,13 +15,18 @@ const JaleeBeaconManager = {
   InitializerConnection: function(){
     NativeBeaconJalee.InitializerConnection();
   },
-  StartBeaconConnection: function(proximityUUID, major, minor): Promise<any> {
+  StartRangingBeacon: function(proximityUUID, major, minor): Promise<any> {
       return new Promise((resolve, reject) => {
         NativeBeaconJalee.StartBeaconConnection(proximityUUID, major, minor, resolve, reject);
-      })
+      });
+  },
+  connectBeaconService: function(position){
+    return new Promise((resolve, reject) => {
+      NativeBeaconJalee.connectBeaconService(resolve, reject);
+    });
   },
   callBeaconJalee: function() {
-    NativeBeaconJalee.callBeaconJalee();
+    return NativeBeaconJalee.callBeaconJalee();
   },
   onStopRanging: function() {
     NativeBeaconJalee.onStop();

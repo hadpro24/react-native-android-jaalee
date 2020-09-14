@@ -26,21 +26,50 @@
   	```
       compile project(':react-native-android-jaalee')
   	```
+
+## Add this to your AndroidManifest.xml
+1. Open `android/app/src/main/AndroidManifest.xml`
+  - Add `<service android:name="com.jaalee.sdk.service.BeaconService" android:exported="false"/>` for scanning in your `<application android:name=".MainApplication"...`
+  - Assure you have:
+  `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-permission android:name="android.permission.BLUETOOTH" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />`
 ## Featurs
-  - Connection beacon JAALEE
+  - Scanning beacon JAALEE
   - Call Beacon
 
 ## Usage
 ```javascript
-import RNAndroidJaalee from 'react-native-android-jaalee';
+import JaleeBeaconManager from 'react-native-android-jaalee';
+
+// Initialize Connection
+JaleeBeaconManager.InitializerConnection();
 
 // Connection Beacon
-RNAndroidJaalee.StartBeaconConnectionWithPassword(proximityUUID, name, macAddress,
-    major, minor, measuredPower, rssi, batt, password);
-// Call Beacon - Vibrate
- RNAndroidJaalee.CallBeaconJalee();
+ JaleeBeaconManager.StartRangingBeacon(uid, majoir, minor) 
+ .then(() => {
+   console.log('Starting connection');
+ })
+ .catch(e => {
+   console.log('error start connection', e);
+ });
+
+
+ // listing my beacon
+ DeviceEventEmitter.addListener('onBeaconJaaleeFound', (event) =>{
+   console.log('data ...', event);
+   // Object
+   // identifier, uid, major, minor, rssi, measuredPower, macAddress, battLevel
+ });
+
+// If beacon find run this to Call Beacon
+JaleeBeaconManager.callBeaconJalee();
 
 ```
+
+## You want to contribute
+- dev.harouna@gmail.com
 
 ## Author
 Harouna Diallo
