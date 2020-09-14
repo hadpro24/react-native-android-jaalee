@@ -31,10 +31,12 @@
 1. Open `android/app/src/main/AndroidManifest.xml`
   - Add `<service android:name="com.jaalee.sdk.service.BeaconService" android:exported="false"/>` for scanning in your `<application android:name=".MainApplication"...`
   - Assure you have:
-  `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+  ```
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.BLUETOOTH" />
-  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />`
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+  ```
 ## Featurs
   - Scanning beacon JAALEE
   - Call Beacon
@@ -42,6 +44,7 @@
 ## Usage
 ```javascript
 import JaleeBeaconManager from 'react-native-android-jaalee';
+import { DeviceEventEmitter } from 'react-native';
 
 // Initialize Connection
 JaleeBeaconManager.InitializerConnection();
@@ -61,10 +64,17 @@ JaleeBeaconManager.InitializerConnection();
    console.log('data ...', event);
    // Object
    // identifier, uid, major, minor, rssi, measuredPower, macAddress, battLevel
+   // connecting beacon service using default password
+   JaleeBeaconManager.connectBeaconService().then(() =>{
+     console.log('beacon connected')
+   }).catch(error => {
+       console.log('error connection', error)
+   });
+   
  });
 
 // If beacon find run this to Call Beacon
-JaleeBeaconManager.callBeaconJalee();
+JaleeBeaconManager.callBeaconJalee(); // this use the default password 666666
 
 ```
 
